@@ -13,30 +13,30 @@ main() {
 cat <<EOF > ./step.yaml
 steps:
   - label: triggering k6
-    commands: |
-    cat <<EOF2 > ./k6-docker-compose.yaml
-    services:
-      k6:
-        volumes:
-          - "~/.aws:/root/.aws"
-          - ".:/app"
-          - "/tmp:/tmp"
-        user: root
-        working_dir: /app
-        environment:
-          - AWS_DEFAULT_REGION=\\\${AWS_DEFAULT_REGION:-ap-southeast-2}
-          - AWS_PROFILE
-          - BUILDKITE
-          - K6_CLIENT_ID
-          - K6_CLIENT_SECRET
-          - K6_CLUSTER
-        image: loadimpact/k6:latest
-        command:
-          - run
-          - --include-system-env-vars
-          - ./smoke.js
-    EOF2
-    docker-compose run --rm -f k6-docker-compose.yaml k6
+    command: |
+      cat <<EOF2 > ./k6-docker-compose.yaml
+      services:
+        k6:
+          volumes:
+            - "~/.aws:/root/.aws"
+            - ".:/app"
+            - "/tmp:/tmp"
+          user: root
+          working_dir: /app
+          environment:
+            - AWS_DEFAULT_REGION=\\\${AWS_DEFAULT_REGION:-ap-southeast-2}
+            - AWS_PROFILE
+            - BUILDKITE
+            - K6_CLIENT_ID
+            - K6_CLIENT_SECRET
+            - K6_CLUSTER
+          image: loadimpact/k6:latest
+          command:
+            - run
+            - --include-system-env-vars
+            - ./smoke.js
+      EOF2
+      docker-compose run --rm -f k6-docker-compose.yaml k6
     agents: queue=k8s-alpha-apse2-v1-pe
     #concurrency: 1
     #concurrency_group:
