@@ -1,0 +1,39 @@
+name: K6 runner
+description: Trigger a k6 load test
+author: https://github.com/cesarafterpay/k6-buildkite-plugin
+requirements:
+  - docker
+  - docker-compose
+configuration:
+  definitions:
+    environment_variable:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+      required:
+        - name
+  properties:
+    cloudflare_access_enabled:
+      type: boolean
+    cloudflare_access_client_id:
+      type: string
+    cloudflare_access_client_secret:
+      type: string
+    duration:
+      type: integer
+    environment_variables:
+      - type: array
+      items:
+      $ref: '#/definitions/environment_variable'
+      minimum: 1
+    simulation_file:
+      type: string
+    trigger_before_command:
+      type: boolean
+  required:
+    - duration
+    - simulation_file
+  additionalProperties: false

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+buildkite::readArray() {
+  declare -a response=()
+  local value
+  while IFS='=' read -r value _ ; do
+    if [[ $value =~ ^($1) ]]; then
+      response+=("${!value}")
+    fi
+  done < <(env |sort)
+  echo "${response[@]:-}"
+}
+export -f buildkite::readArray
+
