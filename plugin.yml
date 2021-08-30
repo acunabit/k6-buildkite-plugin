@@ -1,0 +1,12 @@
+name: K6 runner
+description: Trigger a k6 load test
+author: https://github.com/cesarafterpay/k6-buildkite-plugin
+requirements: []
+configuration:
+  definitions:
+  properties:
+    pre_command:
+      type: boolean
+  required:
+    - pre_command
+  additionalProperties: false
