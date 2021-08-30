@@ -45,10 +45,6 @@ EOF
 
   cat ./step.yaml
   buildkite-agent pipeline upload ./step.yaml
-
-
-
-
 }
 
 main
