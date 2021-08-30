@@ -37,7 +37,7 @@ steps:
             - ./smoke.js
       EOF2
       cat ./k6-docker-compose.yaml
-      docker-compose run --rm -f ./k6-docker-compose.yaml k6
+      docker-compose -f k6-docker-compose.yaml run --rm k6
     agents: queue=k8s-alpha-apse2-v1-pe
     #concurrency: 1
     #concurrency_group:
