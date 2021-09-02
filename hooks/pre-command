@@ -9,6 +9,7 @@ source "$SCRIPT_DIR/lib/cloudrc"
 
 main() {
   bash --version
+  docker-compose --version
 
 cat <<EOF > ./step.yaml
 steps:
