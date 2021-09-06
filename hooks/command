@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+# shellcheck disable=SC1090
+source "$SCRIPT_DIR/lib/cloudrc"
+
+main() {
+  bash --version
+  docker-compose --version
+
+  local -r duration="${BUILDKITE_PLUGIN_K6_DURATION}"
+  local -r simulation_file="${BUILDKITE_PLUGIN_K6_SIMULATION_FILE}"
+  local -r trigger_before_command="${BUILDKITE_PLUGIN_K6_TRIGGER_BEFORE_COMMAND:-false}"
+  local -r queue="${BUILDKITE_PLUGIN_K6_QUEUE}"
+  local -r concurrency_group="${BUILDKITE_PLUGIN_K6_CONCURRENCY_GROUP:-${BUILDKITE_BUILD_ID}}"
+  local -r concurrency="${BUILDKITE_PLUGIN_K6_CONCURRENCY:-1}"
+  local -r cloudflare_access_client_secret="${BUILDKITE_PLUGIN_K6_CLOUDFLARE_ACCESS_CLIENT_SECRET:-}"
+
+  if [[ "${trigger_before_command}" = "true" ]]; then
+    echo "k6 test will be triggered by pre-command hook and terminated by pre-exit hook"
+    return 0
+  fi
+
+  if [[ -n "${cloudflare_access_client_secret}" ]]; then
+    local secret=$(aws secretsmanager get-secret-value --secret-id "${cloudflare_access_client_secret}")
+    export K6_CLOUDFLARE_ACCESS_CLIENT_ID=$(echo "$secret" | jq -r '.SecretString | fromjson | ."CF-Access-Client-ID"')
+    export K6_CLOUDFLARE_ACCESS_CLIENT_SECRET=$( echo "$secret" | jq -r '.SecretString | fromjson | ."CF-Access-Client-Secret"' )
+  fi
+
+  IFS=' ' read -r -a environment_variables < <(buildkite::readArray "BUILDKITE_PLUGIN_K6_ENVIRONMENT_VARIABLES_[0-9]+_NAME")
+  declare -p environment_variables &>/dev/null
+
+
+cat <<EOF > ./step.yaml
+steps:
+  - label: triggering k6 test
+    command: |
+      cat <<EOF2 > ./k6-docker-compose.yaml
+      version: '3.4'
+      services:
+        k6:
+          volumes:
+            - "~/.aws:/root/.aws"
+            - ".:/app"
+            - "/tmp:/tmp"
+          user: root
+          working_dir: /app
+          environment:
+            - BUILDKITE
+            - K6_DURATION=${duration}
+EOF
+
+  if [[ -n "${cloudflare_access_client_secret}" ]]; then
+    echo "            - K6_CLOUDFLARE_ACCESS_CLIENT_ID" >> ./step.yaml
+    echo "            - K6_CLOUDFLARE_ACCESS_CLIENT_SECRET" >> ./step.yaml
+  fi
+
+  for i in "${!environment_variables[@]}"
+  do
+    local variable_value_parameter="BUILDKITE_PLUGIN_K6_ENVIRONMENT_VARIABLES_${i}_VALUE"
+    local variable_value="${!variable_value_parameter:+=${!variable_value_parameter}}"
+    echo "            - ${environment_variables[$i]}${variable_value}" >> ./step.yaml
+  done
+
+cat <<EOF >> ./step.yaml
+          image: loadimpact/k6:latest
+          command:
+            - run
+            - --include-system-env-vars
+            - ${simulation_file}
+      EOF2
+      cat ./k6-docker-compose.yaml
+      docker-compose -f k6-docker-compose.yaml run --rm k6
+    agents: queue=${queue}
+    concurrency: ${concurrency}
+    concurrency_group: ${concurrency_group}
+EOF
+
+
+  cat ./step.yaml
+  buildkite-agent pipeline upload ./step.yaml
+}
+
+main

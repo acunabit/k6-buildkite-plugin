@@ -4,9 +4,37 @@ author: https://github.com/cesarafterpay/k6-buildkite-plugin
 requirements: []
 configuration:
   definitions:
+    environment_variable:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+      required:
+        - name
   properties:
-    pre_command:
+    cloudflare_access_enabled:
       type: boolean
+    cloudflare_access_client_id:
+      type: string
+    cloudflare_access_client_secret:
+      type: string
+    duration:
+      type: integer
+    environment_variables:
+      - type: array
+      items:
+      $ref: '#/definitions/environment_variable'
+      minimum: 1
+    simulation_file:
+      type: string
+    trigger_before_command:
+      type: boolean
+    queue:
+      type: string
   required:
-    - pre_command
+    - duration
+    - simulation_file
+    - queue
   additionalProperties: false
