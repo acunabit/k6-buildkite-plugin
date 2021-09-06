@@ -31,8 +31,6 @@ configuration:
       type: string
     trigger_before_command:
       type: boolean
-    queue:
-      type: string
   required:
     - duration
     - simulation_file
