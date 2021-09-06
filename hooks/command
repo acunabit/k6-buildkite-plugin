@@ -66,7 +66,7 @@ cat <<EOF >> ${docker_compose_file}
 EOF
 
 cat ./k6-docker-compose.yaml
-docker-compose -f ${docker_compose_file} run --rm k6
+DOCKER_HOST=unix:///var/run/docker.sock docker-compose -f ${docker_compose_file} run --rm k6
 }
 
 main
