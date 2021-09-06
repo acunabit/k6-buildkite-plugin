@@ -1,7 +1,9 @@
 name: K6 runner
 description: Trigger a k6 load test
 author: https://github.com/cesarafterpay/k6-buildkite-plugin
-requirements: []
+requirements:
+  - docker
+  - docker-compose
 configuration:
   definitions:
     environment_variable:
