@@ -36,5 +36,4 @@ configuration:
   required:
     - duration
     - simulation_file
-    - queue
   additionalProperties: false

@@ -12,7 +12,7 @@ main() {
   local -r duration="${BUILDKITE_PLUGIN_K6_DURATION}"
   local -r simulation_file="${BUILDKITE_PLUGIN_K6_SIMULATION_FILE}"
   local -r trigger_before_command="${BUILDKITE_PLUGIN_K6_TRIGGER_BEFORE_COMMAND:-false}"
-  local -r queue="${BUILDKITE_PLUGIN_K6_QUEUE}"
+  local -r queue="${BUILDKITE_PLUGIN_K6_QUEUE:-${BUILDKITE_AGENT_META_DATA_QUEUE}}"
   local -r concurrency_group="${BUILDKITE_PLUGIN_K6_CONCURRENCY_GROUP:-${BUILDKITE_BUILD_ID}}"
   local -r concurrency="${BUILDKITE_PLUGIN_K6_CONCURRENCY:-1}"
   local -r cloudflare_access_client_secret="${BUILDKITE_PLUGIN_K6_CLOUDFLARE_ACCESS_CLIENT_SECRET:-}"
