@@ -22,6 +22,8 @@ configuration:
       type: string
     cloudflare_access_client_secret:
       type: string
+    docker_container_name:
+      type: string
     duration:
       type: integer
     environment_variables:
@@ -30,6 +32,8 @@ configuration:
       $ref: '#/definitions/environment_variable'
       minimum: 1
     simulation_file:
+      type: string
+    stop_signal:
       type: string
     trigger_before_command:
       type: boolean

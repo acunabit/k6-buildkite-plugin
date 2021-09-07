@@ -12,3 +12,24 @@ buildkite::readArray() {
 }
 export -f buildkite::readArray
 
+k6::stopTest(){
+  local -r docker_compose_file=$1
+  local -r container_name=$2
+  local -r stop_signal=$3
+  while true
+  do
+    local signal=$(buildkite-agent meta-data get "${stop_signal}" --default '')
+    #local signal=$(redis-cli get "${stop_signal}" )
+    if [[ -n "${signal}" ]]; then
+      break
+    fi
+    sleep 5
+  done
+
+  if [ "$(docker-compose -f "${docker_compose_file}" ps | grep "${container_name}" | awk '{print $6}')" == "Up" ]
+  then
+    echo "Stopping test"
+    docker-compose -f "${docker_compose_file}" down
+  fi
+}
+export -f k6::stopTest
