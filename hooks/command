@@ -24,7 +24,6 @@ main() {
     local secret=$(aws secretsmanager get-secret-value --secret-id "${cloudflare_access_client_secret}")
     export K6_CLOUDFLARE_ACCESS_CLIENT_ID=$(echo "$secret" | jq -r '.SecretString | fromjson | ."CF-Access-Client-ID"')
     export K6_CLOUDFLARE_ACCESS_CLIENT_SECRET=$( echo "$secret" | jq -r '.SecretString | fromjson | ."CF-Access-Client-Secret"' )
-    echo "K6_CLOUDFLARE_ACCESS_CLIENT_ID=${K6_CLOUDFLARE_ACCESS_CLIENT_ID}"
     echo
   fi
 
