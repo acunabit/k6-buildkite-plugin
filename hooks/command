@@ -14,8 +14,8 @@ main() {
   local -r simulation_file="${BUILDKITE_PLUGIN_K6_SIMULATION_FILE}"
   local -r trigger_before_command="${BUILDKITE_PLUGIN_K6_TRIGGER_BEFORE_COMMAND:-false}"
   local -r cloudflare_access_client_secret="${BUILDKITE_PLUGIN_K6_CLOUDFLARE_ACCESS_CLIENT_SECRET:-}"
-  local -r container_name="${DOCKER_CONTAINER_NAME:-k6}"
-  local -r stop_signal="${stop_signal:-}"
+  local -r container_name="${BUILDKITE_PLUGIN_K6_DOCKER_CONTAINER_NAME:-k6}"
+  local -r stop_signal="${BUILDKITE_PLUGIN_K6_STOP_SIGNAL:-}"
 
   if [[ "${trigger_before_command}" = "true" ]]; then
     echo "k6 test will be triggered by pre-command hook and terminated by pre-exit hook"
