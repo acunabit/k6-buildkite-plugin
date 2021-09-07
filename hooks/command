@@ -14,6 +14,8 @@ main() {
   local -r simulation_file="${BUILDKITE_PLUGIN_K6_SIMULATION_FILE}"
   local -r trigger_before_command="${BUILDKITE_PLUGIN_K6_TRIGGER_BEFORE_COMMAND:-false}"
   local -r cloudflare_access_client_secret="${BUILDKITE_PLUGIN_K6_CLOUDFLARE_ACCESS_CLIENT_SECRET:-}"
+  local -r container_name="${DOCKER_CONTAINER_NAME:-k6}"
+  local -r stop_signal="${stop_signal:-}"
 
   if [[ "${trigger_before_command}" = "true" ]]; then
     echo "k6 test will be triggered by pre-command hook and terminated by pre-exit hook"
@@ -24,7 +26,6 @@ main() {
     local secret=$(aws secretsmanager get-secret-value --secret-id "${cloudflare_access_client_secret}")
     export K6_CLOUDFLARE_ACCESS_CLIENT_ID=$(echo "$secret" | jq -r '.SecretString | fromjson | ."CF-Access-Client-ID"')
     export K6_CLOUDFLARE_ACCESS_CLIENT_SECRET=$( echo "$secret" | jq -r '.SecretString | fromjson | ."CF-Access-Client-Secret"' )
-    echo "  K6_CLOUDFLARE_ACCESS_CLIENT_ID=(${#K6_CLOUDFLARE_ACCESS_CLIENT_ID} chars)"
     echo
   fi
 
@@ -37,7 +38,6 @@ version: '3.4'
 services:
   k6:
     volumes:
-      - "~/.aws:/root/.aws"
       - ".:/app"
       - "/tmp:/tmp"
     user: root
@@ -47,11 +47,13 @@ services:
       - K6_DURATION=${duration}
 EOF
 
+  # add CF credentials if secret is provided
   if [[ -n "${cloudflare_access_client_secret}" ]]; then
     echo "      - K6_CLOUDFLARE_ACCESS_CLIENT_ID" >> ${docker_compose_file}
     echo "      - K6_CLOUDFLARE_ACCESS_CLIENT_SECRET" >> ${docker_compose_file}
   fi
 
+  # pass environment variables
   for i in "${!environment_variables[@]}"
   do
     local variable_value_parameter="BUILDKITE_PLUGIN_K6_ENVIRONMENT_VARIABLES_${i}_VALUE"
@@ -67,8 +69,15 @@ cat <<EOF >> ${docker_compose_file}
       - ${simulation_file}
 EOF
 
-cat ./k6-docker-compose.yaml
-docker-compose -f ${docker_compose_file} run --rm k6
+  cat ./k6-docker-compose.yaml
+
+  if [ -z $(buildkite-agent meta-data get "${stop_signal}" --default '') ]
+  then
+    k6::stopTest "${docker_compose_file}" "${container_name}" "${stop_signal}" &
+    docker-compose -f "${docker_compose_file}" run --rm --name "${container_name}" k6
+  else
+    echo "Skipping test. Stop flag already enabled"
+  fi
 }
 
 main

@@ -41,7 +41,6 @@ load "$PWD/hooks/lib/cloudrc"
 @test "run k6 with custom environment variables should succeed" {
   export BUILDKITE_PLUGIN_K6_DURATION="2m"
   export BUILDKITE_PLUGIN_K6_SIMULATION_FILE="./smoke.js"
-  export BUILDKITE_PLUGIN_K6_QUEUE="myqueue"
   export BUILDKITE_PLUGIN_K6_ENVIRONMENT_VARIABLES_0_NAME="MY_CUSTOM_ENV_VAR"
   export BUILDKITE_PLUGIN_K6_ENVIRONMENT_VARIABLES_0_VALUE="APT"
   export BUILDKITE_PLUGIN_K6_ENVIRONMENT_VARIABLES_1_NAME="IPSOM"
@@ -71,7 +70,6 @@ load "$PWD/hooks/lib/cloudrc"
 @test "provide cloudflare access credentials should succeed" {
   export BUILDKITE_PLUGIN_K6_DURATION="2m"
   export BUILDKITE_PLUGIN_K6_SIMULATION_FILE="./smoke.js"
-  export BUILDKITE_PLUGIN_K6_QUEUE="myqueue"
   export BUILDKITE_PLUGIN_K6_CLOUDFLARE_ACCESS_CLIENT_SECRET="/path/to/secret"
   export BUILDKITE_BUILD_ID="ABCDE1234"
 
