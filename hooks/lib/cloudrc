@@ -33,7 +33,7 @@ k6::stopTest(){
 
   if [ "$(docker-compose -f "${docker_compose_file}" ps | grep "${container_name}" | awk '{print $6}')" == "Up" ]
   then
-    echo "Stopping test"
+    echo "Stop signal received. Stopping test"
     docker-compose -f "${docker_compose_file}" down
   fi
 }

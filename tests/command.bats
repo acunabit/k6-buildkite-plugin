@@ -26,7 +26,7 @@ load "$PWD/hooks/lib/cloudrc"
        "-f k6-docker-compose.yaml run --rm k6 : echo 'test started'"
 
 
-  run "$PWD/hooks/command"
+  run "$PWD/hooks/pre-command"
 
   assert_output --partial " - ./smoke.js"
   assert_output --partial "version: '3.4'"
@@ -53,7 +53,7 @@ load "$PWD/hooks/lib/cloudrc"
        "-f k6-docker-compose.yaml run --rm k6 : echo 'test started'"
 
 
-  run "$PWD/hooks/command"
+  run "$PWD/hooks/pre-command"
 
   assert_output --partial " - ./smoke.js"
   assert_output --partial "version: '3.4'"
@@ -84,7 +84,7 @@ load "$PWD/hooks/lib/cloudrc"
        "-r '.SecretString | fromjson | .\"CF-Access-Client-ID\"' : echo 'client-id'" \
        "-r '.SecretString | fromjson | .\"CF-Access-Client-Secret\"' : echo 'client-secret'"
 
-  run "$PWD/hooks/command"
+  run "$PWD/hooks/pre-command"
 
   assert_output --partial " - K6_CLOUDFLARE_ACCESS_CLIENT_ID"
   assert_output --partial " - K6_CLOUDFLARE_ACCESS_CLIENT_SECRET"
