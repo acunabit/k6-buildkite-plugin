@@ -9,17 +9,13 @@ main() {
   bash --version
   docker-compose --version
 
-  export BUILDKITE_PLUGIN_K6_DURATION="2m"
-  export BUILDKITE_PLUGIN_K6_SIMULATION_FILE="./smoke.js"
-  #export BUILDKITE_BUILD_ID="ABCDE1234"
-
   local -r docker_compose_file="k6-docker-compose.yaml"
   local -r duration="${BUILDKITE_PLUGIN_K6_DURATION}"
   local -r simulation_file="${BUILDKITE_PLUGIN_K6_SIMULATION_FILE}"
   local -r trigger_before_command="${BUILDKITE_PLUGIN_K6_TRIGGER_BEFORE_COMMAND:-false}"
   local -r cloudflare_access_client_secret="${BUILDKITE_PLUGIN_K6_CLOUDFLARE_ACCESS_CLIENT_SECRET:-}"
   local -r container_name="${DOCKER_CONTAINER_NAME:-k6}"
-  local -r stop_signal="${stop_signal:-k6}"
+  local -r stop_signal="${stop_signal:-}"
 
   if [[ "${trigger_before_command}" = "true" ]]; then
     echo "k6 test will be triggered by pre-command hook and terminated by pre-exit hook"
@@ -75,7 +71,6 @@ EOF
 
   cat ./k6-docker-compose.yaml
 
-  #if [ -z $(redis-cli get "${stop_signal}") ]
   if [ -z $(buildkite-agent meta-data get "${stop_signal}" --default '') ]
   then
     k6::stopTest "${docker_compose_file}" "${container_name}" "${stop_signal}" &

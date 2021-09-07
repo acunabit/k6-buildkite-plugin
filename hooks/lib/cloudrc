@@ -16,10 +16,15 @@ k6::stopTest(){
   local -r docker_compose_file=$1
   local -r container_name=$2
   local -r stop_signal=$3
+
+  if [[ -z "${stop_signal}" ]]; then
+    echo "No stop signal provided. Test can't be interrupted"
+    return 0
+  fi
+
   while true
   do
     local signal=$(buildkite-agent meta-data get "${stop_signal}" --default '')
-    #local signal=$(redis-cli get "${stop_signal}" )
     if [[ -n "${signal}" ]]; then
       break
     fi
